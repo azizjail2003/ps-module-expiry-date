@@ -110,24 +110,33 @@ class Ps_Module_Expiry_Date extends Module
             'html5' => true,
         ]);
         
-        // Populate the data if editing an existing product
-        $productId = $params['id'];
+        $productId = isset($params['id']) ? (int)$params['id'] : null;
+
+        $expiryDate = null;
         if ($productId) {
             $sql = new DbQuery();
             $sql->select('expiry_date');
             $sql->from('product');
             $sql->where('id_product = ' . (int)$productId);
             $expiryDate = Db::getInstance()->getValue($sql);
-            
-            if ($expiryDate) {
-                // PrestaShop's form expects a \DateTime object
-                try {
-                    $formBuilder->get('expiry_date')->setData(new \DateTime($expiryDate));
-                } catch (\Exception $e) {
-                    // Ignore date parsing errors
-                }
+        }
+
+        $dateOptions = [
+            'label' => $this->l('Expiry Date'),
+            'required' => false,
+            'widget' => 'single_text',
+            'html5' => true,
+        ];
+
+        if ($expiryDate) {
+            try {
+                $dateOptions['data'] = new \DateTime($expiryDate);
+            } catch (\Exception $e) {
+                // Ignore date parsing errors
             }
         }
+        
+        $formBuilder->add('expiry_date', DateType::class, $dateOptions);
     }
 
     /**
