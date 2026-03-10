@@ -211,4 +211,34 @@ class Ps_Module_Expiry_Date extends Module
         
         return '';
     }
+
+    /**
+     * Add column to the product grid in BO
+     */
+    public function hookActionProductGridDefinitionModifier(array $params)
+    {
+        /** @var \PrestaShop\PrestaShop\Core\Grid\Definition\GridDefinitionInterface $definition */
+        $definition = $params['definition'];
+
+        $definition->getColumns()->addAfter(
+            'reference',
+            (new \PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn('expiry_date'))
+                ->setName($this->l('Expiry Date'))
+                ->setOptions([
+                    'field' => 'expiry_date',
+                ])
+        );
+    }
+
+    /**
+     * Modify the query to fetch the expiry_date field in BO
+     */
+    public function hookActionProductGridQueryBuilderModifier(array $params)
+    {
+        /** @var \Doctrine\DBAL\Query\QueryBuilder $searchQueryBuilder */
+        $searchQueryBuilder = $params['search_query_builder'];
+
+        // The product table is usually aliased as 'p' in the product grid query
+        $searchQueryBuilder->addSelect('p.`expiry_date`');
+    }
 }
