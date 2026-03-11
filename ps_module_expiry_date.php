@@ -30,6 +30,7 @@ if (!defined('_PS_VERSION_')) {
 
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 
 class Ps_Module_Expiry_Date extends Module
 {
@@ -103,13 +104,6 @@ class Ps_Module_Expiry_Date extends Module
         /** @var FormBuilderInterface $formBuilder */
         $formBuilder = $params['form_builder'];
         
-        $formBuilder->add('expiry_date', DateType::class, [
-            'label' => $this->l('Expiry Date'),
-            'required' => false,
-            'widget' => 'single_text',
-            'html5' => true,
-        ]);
-        
         $productId = isset($params['id']) ? (int)$params['id'] : null;
 
         $expiryDate = null;
@@ -126,6 +120,12 @@ class Ps_Module_Expiry_Date extends Module
             'required' => false,
             'widget' => 'single_text',
             'html5' => true,
+            'constraints' => [
+                new GreaterThanOrEqual([
+                    'value' => 'today',
+                    'message' => $this->l('La date d\'expiration ne peut pas être dans le passé.')
+                ])
+            ]
         ];
 
         if ($expiryDate) {
